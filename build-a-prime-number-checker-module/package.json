@@ -1,0 +1,15 @@
+{
+  "name": "build-a-prime-number-checker-module",
+  "version": "1.0.0",
+  "description": "This project checks a number is prime or not",
+  "keywords": [
+    "array"
+  ],
+  "license": "MIT",
+  "author": "Bunyodbek",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
