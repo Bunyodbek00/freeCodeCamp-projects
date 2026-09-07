@@ -6,3 +6,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 
 - [Case Converter](./build-a-case-converter/case_converter)
 - [Prime Number Checker Module](./build-a-prime-number-checker-module)
+- [Web Server](./build-a-web-server)
