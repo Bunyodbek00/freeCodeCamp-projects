@@ -8,3 +8,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 - [Prime Number Checker Module](./build-a-prime-number-checker-module)
 - [Web Server](./build-a-web-server)
 - [Random Joke Server](./build-a-random-joke-app)
+- [Personal Profile App](./build-a-personal-profile-app)
