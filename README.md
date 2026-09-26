@@ -9,3 +9,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 - [Web Server](./build-a-web-server)
 - [Random Joke Server](./build-a-random-joke-app)
 - [Personal Profile App](./build-a-personal-profile-app)
+- [Data Sanitizer](./build-a-data-sanitizer)
