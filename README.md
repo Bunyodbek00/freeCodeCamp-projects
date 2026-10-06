@@ -12,3 +12,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 - [Data Sanitizer](./build-a-data-sanitizer)
 - [Weather Service API](./build-a-weather-service-api)
 - [Timestamp Microservice](./build-a-timestamp-microservice)
+- [Bank API](./build-a-bank-api/)
