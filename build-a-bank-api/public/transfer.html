@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transfer — Tiny Bank</title>
+    <style>
+      :root {
+        --ink: #14213d;
+        --bg: #f4f6fb;
+        --card: #ffffff;
+        --accent: #2e6ff2;
+        --border: #e1e6f0;
+        --error-bg: #fff1f1;
+        --error-text: #b3261e;
+        --success-bg: #effaf0;
+        --success-text: #1f7a3d;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1.25rem;
+      }
+      .shell { width: 100%; max-width: 440px; }
+      .back-link {
+        display: inline-block;
+        margin-bottom: 1.25rem;
+        color: var(--accent);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 8px 24px rgba(20, 33, 61, 0.06);
+      }
+      h1 { margin: 0 0 0.3rem; font-size: 1.5rem; }
+      p.hint { margin: 0 0 1.5rem; color: #8893a8; font-size: 0.9rem; }
+      label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        margin-top: 1rem;
+      }
+      input, select {
+        width: 100%;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.7rem 0.85rem;
+        font-size: 0.98rem;
+        font-family: inherit;
+        background: #fafbfe;
+        color: var(--ink);
+      }
+      input:focus, select:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      button {
+        width: 100%;
+        margin-top: 1.5rem;
+        border: none;
+        border-radius: 10px;
+        padding: 0.85rem;
+        background: var(--accent);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      button:hover { background: #1f57d6; }
+      button:disabled { background: #a9b8d6; cursor: not-allowed; }
+      .message {
+        margin-top: 1.1rem;
+        border-radius: 10px;
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+        display: none;
+      }
+      .message.error {
+        display: block;
+        background: var(--error-bg);
+        color: var(--error-text);
+      }
+      .message.success {
+        display: block;
+        background: var(--success-bg);
+        color: var(--success-text);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <a class="back-link" href="/">&larr; Back to accounts</a>
+
+      <div class="card">
+        <h1>Transfer Money</h1>
+        <p class="hint">Move funds between accounts instantly.</p>
+
+        <form id="transferForm">
+          <label for="fromId">From account</label>
+          <select id="fromId" required></select>
+
+          <label for="toId">To account</label>
+          <select id="toId" required></select>
+
+          <label for="amount">Amount</label>
+          <input type="number" id="amount" min="0.01" step="0.01" placeholder="0.00" required />
+
+          <button type="submit" id="submitBtn">Send Transfer</button>
+        </form>
+
+        <div class="message" id="messageBox"></div>
+      </div>
+    </div>
+
+    <script>
+      const fromSelect = document.getElementById("fromId");
+      const toSelect = document.getElementById("toId");
+      const form = document.getElementById("transferForm");
+      const submitBtn = document.getElementById("submitBtn");
+      const messageBox = document.getElementById("messageBox");
+
+      async function loadAccountOptions() {
+        const res = await fetch("/accounts");
+        const accounts = await res.json();
+
+        const optionsHtml = accounts
+          .map((a) => `<option value="${a.id}">${a.owner} (#${a.id}) — $${a.balance.toFixed(2)}</option>`)
+          .join("");
+
+        fromSelect.innerHTML = optionsHtml;
+        toSelect.innerHTML = optionsHtml;
+        if (accounts.length > 1) toSelect.selectedIndex = 1;
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        messageBox.className = "message";
+        messageBox.textContent = "";
+
+        const fromId = Number(fromSelect.value);
+        const toId = Number(toSelect.value);
+        const amount = Number(document.getElementById("amount").value);
+
+        if (fromId === toId) {
+          messageBox.className = "message error";
+          messageBox.textContent = "You can't transfer to the same account.";
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Sending…";
+
+        try {
+          const res = await fetch("/transfer", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fromId, toId, amount }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            const errMsg = data.error && data.error.message ? data.error.message : "Transfer failed.";
+            messageBox.className = "message error";
+            messageBox.textContent = errMsg;
+          } else {
+            messageBox.className = "message success";
+            messageBox.textContent = `Sent $${data.amountTransferred.toFixed(2)} from ${data.senderName} to ${data.recipientName}.`;
+            await loadAccountOptions();
+            form.reset();
+          }
+        } catch (err) {
+          messageBox.className = "message error";
+          messageBox.textContent = "Network error — is the server running?";
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Send Transfer";
+        }
+      });
+
+      loadAccountOptions();
+    </script>
+  </body>
+</html>

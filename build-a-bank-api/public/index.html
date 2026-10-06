@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tiny Bank</title>
+    <style>
+      :root {
+        --ink: #14213d;
+        --bg: #f4f6fb;
+        --card: #ffffff;
+        --accent: #2e6ff2;
+        --border: #e1e6f0;
+        --danger: #b3261e;
+        --success: #1f7a3d;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
+        padding: 2.5rem 1.25rem;
+      }
+      .shell { max-width: 680px; margin: 0 auto; }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.75rem;
+      }
+      h1 { margin: 0; font-size: 1.7rem; }
+      .nav-link {
+        text-decoration: none;
+        background: var(--accent);
+        color: white;
+        padding: 0.6rem 1.1rem;
+        border-radius: 10px;
+        font-size: 0.92rem;
+        font-weight: 600;
+        transition: background 0.15s ease;
+      }
+      .nav-link:hover { background: #1f57d6; }
+      .accounts {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .account-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.1rem 1.3rem;
+        box-shadow: 0 2px 8px rgba(20, 33, 61, 0.04);
+      }
+      .card-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .account-info .owner { font-weight: 600; font-size: 1.05rem; }
+      .account-info .id { color: #8893a8; font-size: 0.85rem; margin-top: 0.15rem; }
+      .account-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .balance { font-size: 1.2rem; font-weight: 600; margin-right: 0.4rem; }
+      .status {
+        margin-top: 1.5rem;
+        font-size: 0.9rem;
+        color: #8893a8;
+        text-align: center;
+      }
+      .action-panel {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-top: 0.8rem;
+        padding-top: 0.8rem;
+        border-top: 1px dashed var(--border);
+      }
+      .action-panel input {
+        flex: 1;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+      }
+      .new-account-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem 1.3rem;
+        margin-bottom: 1.5rem;
+      }
+      .new-account-card h2, .history-card h2 {
+        margin: 0 0 1rem;
+        font-size: 1.05rem;
+      }
+      .new-account-row {
+        display: flex;
+        gap: 0.6rem;
+      }
+      .new-account-row input {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.65rem 0.8rem;
+        font-size: 0.95rem;
+        font-family: inherit;
+        background: #fafbfe;
+        color: var(--ink);
+      }
+      #newOwner { flex: 2; }
+      #newBalance { flex: 1; }
+      .btn {
+        border: none;
+        border-radius: 10px;
+        padding: 0.65rem 1.1rem;
+        background: var(--ink);
+        color: white;
+        font-weight: 600;
+        font-size: 0.92rem;
+        cursor: pointer;
+        transition: background 0.15s ease;
+      }
+      .btn:hover { background: #1f2b4d; }
+      .btn-sm {
+        border: 1px solid var(--border);
+        background: #fafbfe;
+        color: var(--ink);
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-sm:hover { background: #eefbe8; color: var(--success); border-color: var(--success); }
+      .btn-sm-withdraw:hover { background: #fdf2f2; color: var(--danger); border-color: var(--danger); }
+      .btn-delete {
+        border: 1px solid var(--danger);
+        background: transparent;
+        color: var(--danger);
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.82rem;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn-delete:hover { background: var(--danger); color: white; }
+      .new-account-message {
+        margin-top: 0.7rem;
+        font-size: 0.85rem;
+        display: none;
+      }
+      .new-account-message.error { display: block; color: var(--danger); }
+      .new-account-message.success { display: block; color: var(--success); }
+      .history-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem 1.3rem;
+        margin-top: 2rem;
+      }
+      .tx-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+      }
+      .tx-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #f0f3f8;
+        font-size: 0.88rem;
+      }
+      .tx-item:last-child { border-bottom: none; }
+      .tx-desc { font-weight: 500; }
+      .tx-time { color: #8893a8; font-size: 0.78rem; margin-top: 0.15rem; }
+      .badge {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        text-transform: uppercase;
+      }
+      .badge-DEPOSIT { background: #eefbe8; color: #1f7a3d; }
+      .badge-WITHDRAWAL { background: #fdf2f2; color: #b3261e; }
+      .badge-TRANSFER { background: #ebf3fe; color: #2e6ff2; }
+      .badge-ACCOUNT_CREATED { background: #f0f2f5; color: #55627a; }
+      .badge-ACCOUNT_DELETED { background: #f8e8e8; color: #8c1d18; }
+      .inline-msg {
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+        display: none;
+      }
+      .inline-msg.error { display: block; color: var(--danger); }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div style="margin-bottom: 1.5rem;">
+        <h1 style="font-size: 2rem; margin-bottom: 0.25rem;">Welcome to the Bank</h1>
+        <p style="margin: 0; color: #8893a8; font-size: 0.95rem;">Manage your accounts and make quick transfers below.</p>
+      </div>
+
+      <header>
+        <h2 style="margin: 0; font-size: 1.3rem;">Accounts</h2>
+        <a class="nav-link" href="/transfer.html">Transfer Money</a>
+      </header>
+
+      <div class="new-account-card">
+        <h2>Open a New Account</h2>
+        <form id="newAccountForm">
+          <div class="new-account-row">
+            <input type="text" id="newOwner" placeholder="Owner name" required />
+            <input type="number" id="newBalance" placeholder="Starting balance" min="0" step="0.01" required />
+            <button type="submit" class="btn">Create</button>
+          </div>
+        </form>
+        <p class="new-account-message" id="newAccountMessage"></p>
+      </div>
+
+      <div class="accounts" id="accountsList">
+        <p class="status">Loading accounts…</p>
+      </div>
+
+      <div class="history-card">
+        <h2>Transaction History</h2>
+        <div class="tx-list" id="txList">
+          <p class="status">Loading transactions…</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function loadAccounts() {
+        const list = document.getElementById("accountsList");
+        try {
+          const res = await fetch("/accounts");
+          const accounts = await res.json();
+
+          if (!accounts.length) {
+            list.innerHTML = '<p class="status">No accounts found.</p>';
+            return;
+          }
+
+          list.innerHTML = accounts
+            .map(
+              (a) => `
+            <div class="account-card">
+              <div class="card-main">
+                <div class="account-info">
+                  <div class="owner">${a.owner}</div>
+                  <div class="id">Account #${a.id}</div>
+                </div>
+                <div class="account-actions">
+                  <div class="balance">$${a.balance.toFixed(2)}</div>
+                  <button class="btn-delete" onclick="deleteAccount(${a.id}, '${a.owner}')">Delete</button>
+                </div>
+              </div>
+              
+              <div class="action-panel">
+                <input type="number" id="input-amount-${a.id}" placeholder="Amount" min="0.01" step="0.01" />
+                <button class="btn-sm" onclick="processTransaction(${a.id}, 'deposit')">+ Deposit</button>
+                <button class="btn-sm btn-sm-withdraw" onclick="processTransaction(${a.id}, 'withdraw')">- Withdraw</button>
+              </div>
+              <div class="inline-msg" id="inline-msg-${a.id}"></div>
+            </div>
+          `,
+            )
+            .join("");
+        } catch (err) {
+          list.innerHTML = '<p class="status">Could not load accounts.</p>';
+        }
+      }
+
+      async function processTransaction(id, type) {
+        const input = document.getElementById(`input-amount-${id}`);
+        const msgEl = document.getElementById(`inline-msg-${id}`);
+        const amount = Number(input.value);
+
+        msgEl.className = "inline-msg";
+        msgEl.textContent = "";
+
+        if (isNaN(amount) || amount <= 0) {
+          msgEl.className = "inline-msg error";
+          msgEl.textContent = "Please enter a valid amount.";
+          return;
+        }
+
+        try {
+          const res = await fetch(`/accounts/${id}/${type}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            msgEl.className = "inline-msg error";
+            msgEl.textContent = data.error?.message || "Transaction failed.";
+          } else {
+            await refreshAll();
+          }
+        } catch (err) {
+          msgEl.className = "inline-msg error";
+          msgEl.textContent = "Network error.";
+        }
+      }
+
+      async function loadTransactions() {
+        const txList = document.getElementById("txList");
+        try {
+          const res = await fetch("/transactions");
+          const transactions = await res.json();
+
+          if (!transactions.length) {
+            txList.innerHTML = '<p class="status">No recent transactions.</p>';
+            return;
+          }
+
+          txList.innerHTML = transactions
+            .map(
+              (t) => `
+            <div class="tx-item">
+              <div>
+                <div class="tx-desc">${t.description}</div>
+                <div class="tx-time">${new Date(t.timestamp).toLocaleString()}</div>
+              </div>
+              <span class="badge badge-${t.type}">${t.type.replace('_', ' ')}</span>
+            </div>
+          `,
+            )
+            .join("");
+        } catch (err) {
+          txList.innerHTML = '<p class="status">Could not load transaction history.</p>';
+        }
+      }
+
+      async function refreshAll() {
+        await Promise.all([loadAccounts(), loadTransactions()]);
+      }
+
+      const newAccountForm = document.getElementById("newAccountForm");
+      const newAccountMessage = document.getElementById("newAccountMessage");
+
+      newAccountForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        newAccountMessage.className = "new-account-message";
+
+        const owner = document.getElementById("newOwner").value.trim();
+        const balance = Number(document.getElementById("newBalance").value);
+
+        try {
+          const res = await fetch("/accounts", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ owner, balance }),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            const errMsg = data.error?.message || "Could not create account.";
+            newAccountMessage.className = "new-account-message error";
+            newAccountMessage.textContent = errMsg;
+          } else {
+            newAccountMessage.className = "new-account-message success";
+            newAccountMessage.textContent = `Account #${data.id} created for ${data.owner}.`;
+            newAccountForm.reset();
+            await refreshAll();
+          }
+        } catch (err) {
+          newAccountMessage.className = "new-account-message error";
+          newAccountMessage.textContent = "Network error — is the server running?";
+        }
+      });
+
+      async function deleteAccount(id, ownerName) {
+        try {
+          const res = await fetch(`/accounts/${id}`, { method: "DELETE" });
+          const data = await res.json().catch(() => ({}));
+
+          if (!res.ok) {
+            alert(data.error?.message || "Could not delete account.");
+          } else {
+            await refreshAll();
+          }
+        } catch (err) {
+          alert("Network error — is the server running?");
+        }
+      }
+
+      refreshAll();
+    </script>
+  </body>
+</html>
