@@ -1,0 +1,16 @@
+{
+  "name": "build-a-resource-monitor",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {"start": "node server.js"},
+  "dependencies": {
+    "ws": "^8.22.0"
+  },
+  "keywords": [
+    "node",
+    "freecodecamp"
+  ],
+  "license": "MIT",
+  "type": "module"
+}
