@@ -13,3 +13,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 - [Weather Service API](./build-a-weather-service-api)
 - [Timestamp Microservice](./build-a-timestamp-microservice)
 - [Bank API](./build-a-bank-api/)
+- [Resource Monitor](./build-a-resource-monitor)
