@@ -14,3 +14,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 - [Timestamp Microservice](./build-a-timestamp-microservice)
 - [Bank API](./build-a-bank-api/)
 - [Resource Monitor](./build-a-resource-monitor)
+- [Chat App](./build-a-chat-app)
