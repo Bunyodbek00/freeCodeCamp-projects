@@ -15,3 +15,4 @@ A collection of projects completed as part of freeCodeCamp's Back End Developmen
 - [Bank API](./build-a-bank-api/)
 - [Resource Monitor](./build-a-resource-monitor)
 - [Chat App](./build-a-chat-app)
+- [Family Movie Watchlist API](./build-a-family-movie-watchlist-api/)
